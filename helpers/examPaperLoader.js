@@ -92,8 +92,8 @@ class ExamPaperLoader {
 
 1. Extract the roll number from the the exam paper.
 2. Identify the question numbers and their corresponding answers in the exam paper and evaluate them based on the answers provided in the answer key for the same question number.
-3. Evaluate the student's answers based on the answer key.
-4. Provide a score for each answered question based on the marks specified in the answer key.
+3. Evaluate the student's answers based on the answers from the answer key.
+4. Provide a score for each answered question based on the marks specified in the answer key for the respective question number.
 5. Determine if this paper contains complete answers or if it's a partial submission.
 6. If you can't find an answer for a question in the current answer key, indicate that you need the next answer key.
 
@@ -112,7 +112,7 @@ Please provide your response in the following JSON format:
     {
       "questionNumber": "question number",
       "score": awarded score,
-      "maxScore": maximum score for this question,
+      "maxScore": maximum score for this question obtained from the anwer key,
       "isPartial": boolean indicating if this is a partial answer
     }
   ],
