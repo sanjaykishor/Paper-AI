@@ -62,41 +62,49 @@ function showPopup(message, isError) {
 }
 
 window.electronAPI.receive((data) => {
-  console.log(data);
+  console.log("Received data:", data);
   switch (data.channel) {
-      case "evaluation-results":
-          displayEvaluationResults(data.data);
-          break;
+    case "evaluation-results":
+      displayEvaluationResults(data.data);
+      break;
   }
 });
 
 function displayEvaluationResults(results) {
-  const resultsContainer = document.getElementById('resultsContainer');
-  const marksTableBody = document.getElementById('marksTable').getElementsByTagName('tbody')[0];
-  
-  resultsContainer.innerHTML = ''; // Clear previous results
-  marksTableBody.innerHTML = ''; // Clear previous marks data
+  const resultsContainer = document.getElementById("resultsContainer");
+  const marksTableBody = document
+    .getElementById("marksTable")
+    .getElementsByTagName("tbody")[0];
 
-  results.forEach(result => {
-      // Add to detailed results
-      const resultItem = document.createElement('div');
-      resultItem.className = 'result-item';
-      resultItem.innerHTML = `
-          <h4>Roll No: ${result.rollNo}</h4>
-          <p>Total Score: <span class="score">${result.totalScore}</span></p>
-          <p>Max Possible Score: ${result.maxPossibleScore}</p>
-          <p>Is Complete: ${result.isComplete ? 'Yes' : 'No'}</p>
-      `;
-      resultsContainer.appendChild(resultItem);
+  resultsContainer.innerHTML = ""; // Clear previous results
+  marksTableBody.innerHTML = ""; // Clear previous marks data
 
-      // Add to marks table
-      const row = marksTableBody.insertRow();
-      row.insertCell(0).textContent = result.rollNo;
-      row.insertCell(1).textContent = result.totalScore;
-      row.insertCell(2).textContent = result.maxPossibleScore;
+  results.forEach((result) => {
+    // Add to detailed results
+    const resultItem = document.createElement("div");
+    resultItem.className = "result-item";
+    resultItem.innerHTML = `
+      <h4>Roll No: ${result.rollNo}</h4>
+      <p>Total Score: <span class="score">${result.totalScore}</span></p>
+      <p>Max Possible Score: ${result.maxPossibleScore}</p>
+    `;
+    resultsContainer.appendChild(resultItem);
+
+    // Add to marks table
+    const row = marksTableBody.insertRow();
+    row.insertCell(0).textContent = result.rollNo;
+    row.insertCell(1).textContent = result.totalScore;
+    row.insertCell(2).textContent = result.maxPossibleScore;
   });
 
   showPopup("Evaluation completed successfully!", false);
+}
+
+function updateStudentInfo(studentId, className, year, examType) {
+  document.getElementById("studentIdValue").textContent = studentId;
+  document.getElementById("classValue").textContent = className;
+  document.getElementById("yearValue").textContent = year;
+  document.getElementById("examValue").textContent = examType;
 }
 
 // Search for student
@@ -223,6 +231,3 @@ function displayEvaluationResults(results) {
 //     loadMarksData(data.marks);
 //     renderChart(data.marksChartData, data.marksChartLabels);
 // });
-
-
-

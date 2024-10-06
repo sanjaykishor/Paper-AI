@@ -10,7 +10,7 @@ class ExamPaperLoader {
     this.appFSM = appFSM;
     this.evaluationResults = [];
     this.anthropic = new Anthropic({
-      apiKey: process.env.ANTHROPIC_API_KEY,
+      apiKey: "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",
     });
   }
 
@@ -21,18 +21,14 @@ class ExamPaperLoader {
   async loadAndEvaluatePaper(answerKeyLoader) {
     try {
       const files = await fs.readdir(this.paperPath);
+
       for (const file of files) {
-        const filePath = path.join(this.paperPath, file);
-        const paperContent = await fs.readFile(filePath, "base64");
-
-        console.log(`Evaluating file: ${file}`);
-        await this.evaluateWithClaude(paperContent, answerKeyLoader, file);
-      }
-
-      // Finalize any ongoing evaluation
-      if (this.currentEvaluation) {
-        this.evaluationResults.push(this.currentEvaluation);
-        this.currentEvaluation = null;
+        if (path.extname(file).toLowerCase() === '.png') {
+          const filePath = path.join(this.paperPath, file);
+          console.log(`Processing file: ${file}`);
+          const paperContent = await fs.readFile(filePath, { encoding: 'base64' });
+          await this.evaluateWithClaude(paperContent, answerKeyLoader, file);
+        }
       }
 
       console.log("All papers evaluated successfully");
@@ -45,109 +41,128 @@ class ExamPaperLoader {
 
   async evaluateWithClaude(paperContent, answerKeyLoader, filename) {
     try {
-      let answerKey = answerKeyLoader.getCurrentAnswerKey();
-      let evaluationResult;
-      let isEvaluationComplete = false;
+      let evaluationComplete = false;
+      let currentAnswerKey = answerKeyLoader.getCurrentAnswerKey();
+      let evaluationResult = {
+        rollNo: "",
+        scores: [],
+        totalScore: 0,
+        maxPossibleScore: 0,
+        unansweredQuestions: []
+      };
 
-      while (!isEvaluationComplete) {
-        const prompt = this.generatePrompt(paperContent, answerKey, filename);
+      while (!evaluationComplete && currentAnswerKey) {
+        const prompt = this.generatePrompt(currentAnswerKey, filename, evaluationResult);
 
         const response = await this.anthropic.messages.create({
           model: "claude-3-5-sonnet-20240620",
-          max_tokens: 1000,
+          max_tokens: 1500,
           messages: [
             {
               role: "user",
-              content: prompt,
+              content: [
+                { type: "text", text: prompt },
+                {
+                  type: "image",
+                  source: {
+                    type: "base64",
+                    media_type: "image/png",
+                    data: currentAnswerKey.content
+                  }
+                },
+                {
+                  type: "image",
+                  source: {
+                    type: "base64",
+                    media_type: "image/png",
+                    data: paperContent
+                  }
+                }
+              ],
             },
           ],
         });
 
-        evaluationResult = JSON.parse(response.content[0].text);
+        const result = JSON.parse(response.content[0].text);
+        this.mergeEvaluationResults(evaluationResult, result);
 
-        if (evaluationResult.needNextAnswerKey) {
-          answerKey = answerKeyLoader.getNextAnswerKey();
-          if (!answerKey) {
-            console.log("No more answer keys available. Ending evaluation.");
-            isEvaluationComplete = true;
-          }
+        if (result.unansweredQuestions.length === 0) {
+          evaluationComplete = true;
         } else {
-          isEvaluationComplete = true;
+          currentAnswerKey = answerKeyLoader.getNextAnswerKey();
+          if (!currentAnswerKey) {
+            console.log("No more answer keys available. Ending evaluation.");
+            evaluationComplete = true;
+          }
         }
       }
 
-      this.updateEvaluation(evaluationResult);
+      this.evaluationResults.push(evaluationResult);
       answerKeyLoader.resetAnswerKeys();
 
       return evaluationResult;
     } catch (error) {
-      answerKeyLoader.resetAnswerKeys();
       console.error("Error in Claude evaluation:", error);
       throw error;
     }
   }
 
-  generatePrompt(paperContent, answerKey, filename) {
-    return `You are an exam evaluator. You have been given an answer key and a student's exam paper. Your tasks are:
+  generatePrompt(answerKey, filename, currentEvaluation) {
+    return `You are an exam evaluator. You have been given an answer key image and a student's exam paper image. Your tasks are:
 
-1. Extract the roll number from the the exam paper.
-2. Identify the question numbers and their corresponding answers in the exam paper and evaluate them based on the answers provided in the answer key for the same question number.
-3. Evaluate the student's answers based on the answers from the answer key.
-4. Provide a score for each answered question based on the marks specified in the answer key for the respective question number.
-5. Determine if this paper contains complete answers or if it's a partial submission.
-6. If you can't find an answer for a question in the current answer key, indicate that you need the next answer key.
+1. Carefully examine both images.
+2. Extract the roll number from the exam paper if not already provided.
+3. Identify the question numbers and their corresponding answers in the exam paper.
+4. Compare the student's answers to the answer key.
+5. Provide a score for each answered question based on the marks specified in the answer key.
+6. Determine if any answers are partial or incomplete.
+7. Identify any questions that couldn't be answered with this answer key.
 
-Answer Key:
-Filename: ${answerKey.filename}
-Content: ${answerKey.content}
+Answer Key Image (Filename: ${answerKey.filename}):
+[Answer Key Image]
 
-Exam Paper (Filename: ${filename}):
-${paperContent}
+Exam Paper Image (Filename: ${filename}):
+[Exam Paper Image]
 
-Please provide your response in the following JSON format:
+Current Evaluation State:
+${JSON.stringify(currentEvaluation, null, 2)}
+
+Please provide your evaluation in the following JSON format:
 {
-  "rollNo": "extracted roll number",
-  "isComplete": boolean indicating if this paper contains complete answers or if more pages are expected,
+  "rollNo": "extracted roll number (if not already provided)",
   "scores": [
     {
       "questionNumber": "question number",
       "score": awarded score,
-      "maxScore": maximum score for this question obtained from the anwer key,
+      "maxScore": maximum score for this question from the answer key,
       "isPartial": boolean indicating if this is a partial answer
     }
   ],
   "totalScore": sum of all scores,
   "maxPossibleScore": sum of all max scores for attempted questions,
-  "needNextAnswerKey": boolean indicating if you need the next answer key to complete the evaluation
+  "unansweredQuestions": ["list of question numbers that couldn't be answered with this key"]
 }
 
-If this paper is a continuation of a previous one (same roll number), include only the new information in the scores array.`;
+Ensure your response is only the JSON object, with no additional explanation.`;
   }
 
-  updateEvaluation(evaluationResult) {
-    if (
-      this.currentEvaluation &&
-      this.currentEvaluation.rollNo === evaluationResult.rollNo
-    ) {
-      // Merge with existing evaluation
-      this.currentEvaluation.scores.push(...evaluationResult.scores);
-      this.currentEvaluation.totalScore += evaluationResult.totalScore;
-      this.currentEvaluation.maxPossibleScore +=
-        evaluationResult.maxPossibleScore;
-      this.currentEvaluation.isComplete = evaluationResult.isComplete;
-    } else {
-      // Finalize previous evaluation if exists
-      if (this.currentEvaluation) {
-        this.evaluationResults.push(this.currentEvaluation);
-      }
-      // Start new evaluation
-      this.currentEvaluation = evaluationResult;
+  mergeEvaluationResults(currentEvaluation, newEvaluation) {
+    if (!currentEvaluation.rollNo && newEvaluation.rollNo) {
+      currentEvaluation.rollNo = newEvaluation.rollNo;
     }
 
-    if (evaluationResult.isComplete) {
-      this.evaluationResults.push(this.currentEvaluation);
-      this.currentEvaluation = null;
-    }
+    newEvaluation.scores.forEach(newScore => {
+      const existingScoreIndex = currentEvaluation.scores.findIndex(s => s.questionNumber === newScore.questionNumber);
+      if (existingScoreIndex === -1) {
+        currentEvaluation.scores.push(newScore);
+      } else if (newScore.score > currentEvaluation.scores[existingScoreIndex].score) {
+        currentEvaluation.scores[existingScoreIndex] = newScore;
+      }
+    });
+
+    currentEvaluation.totalScore = currentEvaluation.scores.reduce((sum, score) => sum + score.score, 0);
+    currentEvaluation.maxPossibleScore = currentEvaluation.scores.reduce((sum, score) => sum + score.maxScore, 0);
+    currentEvaluation.unansweredQuestions = newEvaluation.unansweredQuestions;
   }
 
   getEvaluationResults() {

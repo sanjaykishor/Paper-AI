@@ -2,31 +2,34 @@ body {
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
 }
 
 .container {
     display: flex;
-    flex-direction: row;
-    height: 100vh;
+    flex: 1;
+    overflow: hidden;
 }
 
 .sidebar {
-    width: 300px;
+    width: 250px;
     background-color: #f8f8f8;
     padding: 20px;
     border-right: 2px solid #e0e0e0;
+    overflow-y: auto;
 }
 
 .sidebar label {
     font-weight: bold;
-    margin-top: 20px;
+    margin-top: 15px;
     display: block;
 }
 
-.sidebar input[type="text"],
-.sidebar input[type="file"] {
+.sidebar input[type="text"] {
     width: 100%;
-    padding: 10px;
+    padding: 8px;
     margin-top: 5px;
     margin-bottom: 10px;
     box-sizing: border-box;
@@ -43,6 +46,7 @@ body {
     border: none;
     border-radius: 4px;
     cursor: pointer;
+    transition: background-color 0.3s;
 }
 
 .sidebar button:hover {
@@ -50,108 +54,57 @@ body {
 }
 
 .content {
-    flex-grow: 1;
+    flex: 1;
     padding: 20px;
-}
-
-.student-info {
-    font-size: 18px;
-    margin-bottom: 20px;
-}
-
-.marks-section,
-.chart-section {
-    margin-top: 20px;
-}
-
-table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-th,
-td {
-    padding: 10px;
-    text-align: left;
-    border-bottom: 1px solid #ddd;
-}
-
-footer {
-    text-align: center;
-    padding: 10px;
-    background-color: #333;
-    color: white;
-    position: fixed;
-    bottom: 0;
-    width: 100%;
+    overflow-y: auto;
 }
 
 .student-info-card {
     display: flex;
-    flex-direction: row;
     justify-content: space-between;
-    padding: 20px;
-    margin: 20px 0;
+    padding: 15px;
+    margin-bottom: 20px;
     background-color: #f0f0f0;
     border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .student-info-card div {
     flex: 1;
-    padding: 10px;
-    font-size: 16px;
-    color: #333;
-    text-align: left;
-}
-
-.student-info-card div span {
-    font-weight: bold;
-    display: block;
-    font-size: 18px;
-    margin-top: 5px;
+    padding: 5px;
 }
 
 .student-info-label {
-    font-size: 16px;
+    font-size: 14px;
     color: #666;
 }
 
 .student-info-value {
-    font-size: 18px;
+    font-size: 16px;
     font-weight: bold;
     color: #333;
 }
 
-.popup {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    padding: 10px 20px;
-    border-radius: 5px;
-    color: white;
-    display: none;
+.results-container {
+    display: flex;
+    gap: 20px;
+    height: calc(100% - 100px);
 }
 
-.popup.error {
-    background-color: #f44336;
-}
-
-.popup.success {
-    background-color: #4CAF50;
-}
-
-.evaluation-results {
-    margin-top: 20px;
-    background-color: #f9f9f9;
+.evaluation-results, .marks-section {
+    flex: 1;
+    background-color: #ffffff;
     border-radius: 8px;
-    padding: 20px;
+    padding: 15px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    overflow-y: auto;
 }
 
-.evaluation-results h3 {
+.evaluation-results h3, .marks-section h3 {
     margin-top: 0;
     color: #333;
+    border-bottom: 2px solid #333;
+    padding-bottom: 10px;
 }
 
 #resultsContainer {
@@ -159,7 +112,7 @@ footer {
 }
 
 .result-item {
-    background-color: #ffffff;
+    background-color: #f9f9f9;
     border: 1px solid #e0e0e0;
     border-radius: 4px;
     padding: 15px;
@@ -178,13 +131,17 @@ footer {
 
 .result-item .score {
     font-weight: bold;
-    color: #28a745;
+    color: #4CAF50;
+}
+
+.table-container {
+    overflow-y: auto;
+    max-height: calc(100% - 50px);
 }
 
 #marksTable {
     width: 100%;
     border-collapse: collapse;
-    margin-top: 15px;
 }
 
 #marksTable th, #marksTable td {
@@ -197,8 +154,37 @@ footer {
     background-color: #f2f2f2;
     font-weight: bold;
     color: #333;
+    position: sticky;
+    top: 0;
+    z-index: 1;
 }
 
 #marksTable tr:hover {
     background-color: #f5f5f5;
+}
+
+.popup {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 10px 20px;
+    border-radius: 5px;
+    color: white;
+    display: none;
+    z-index: 1000;
+}
+
+.popup.error {
+    background-color: #f44336;
+}
+
+.popup.success {
+    background-color: #4CAF50;
+}
+
+footer {
+    text-align: center;
+    padding: 10px;
+    background-color: #333;
+    color: white;
 }
