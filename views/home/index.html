@@ -26,6 +26,11 @@
             <button id="startBtn">Start Evaluation</button>
         </div>
         <div class="content">
+            <div class="evaluation-config">
+                <label for="passPercentageInput">Pass Percentage:</label>
+                <input type="number" id="passPercentageInput" placeholder="Enter pass percentage" value="40" min="0"
+                    max="100">
+            </div>
             <div class="student-info-card">
                 <div>
                     <span class="student-info-label">Student ID:</span>
@@ -58,6 +63,7 @@
                                     <th>Roll No</th>
                                     <th>Total Score</th>
                                     <th>Max Possible Score</th>
+                                    <th>Status</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -75,4 +81,5 @@
     </footer>
     <script src="../../viewscripts/home/index.js"></script>
 </body>
+
 </html>

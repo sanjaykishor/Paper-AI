@@ -182,6 +182,74 @@ body {
     background-color: #4CAF50;
 }
 
+.evaluation-config {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+    background-color: #f0f0f0;
+    padding: 10px;
+    border-radius: 8px;
+}
+
+.evaluation-config label {
+    margin-right: 10px;
+    font-weight: bold;
+}
+
+.evaluation-config input[type="number"] {
+    width: 80px;
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.results-container {
+    display: flex;
+    gap: 20px;
+    height: calc(100% - 70px); /* Adjust for the evaluation config height */
+}
+
+.result-item {
+    background-color: #f9f9f9;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    padding: 15px;
+    margin-bottom: 10px;
+}
+
+.result-item h4 {
+    margin-top: 0;
+    color: #4CAF50;
+}
+
+.result-item p {
+    margin: 5px 0;
+    color: #666;
+}
+
+.result-item .score, .result-item .percentage {
+    font-weight: bold;
+    color: #4CAF50;
+}
+
+.result-item .status {
+    font-weight: bold;
+    padding: 3px 8px;
+    border-radius: 3px;
+    display: inline-block;
+    margin-top: 5px;
+}
+
+.result-item .status.pass {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.result-item .status.fail {
+    background-color: #f44336;
+    color: white;
+}
+
 footer {
     text-align: center;
     padding: 10px;

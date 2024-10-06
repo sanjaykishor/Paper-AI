@@ -38,7 +38,8 @@ startEvaluationBtn.addEventListener("click", () => {
   console.log("start evaluation clicked");
   const keyPath = document.getElementById("keyPathInput").value;
   const paperPath = document.getElementById("paperPathInput").value;
-  if (keyPath && paperPath) {
+  const passPercentage = document.getElementById("passPercentageInput").value;
+  if (keyPath && paperPath && passPercentage) {
     window.electronAPI.send("start-evaluation", {
       channel: "start-evaluation",
       data: {
@@ -47,7 +48,7 @@ startEvaluationBtn.addEventListener("click", () => {
       },
     });
   } else {
-    showPopup("Please select both key path and paper path!", true);
+    showPopup("Please fill in all required fields!", true);
   }
 });
 
@@ -70,23 +71,29 @@ window.electronAPI.receive((data) => {
   }
 });
 
+
 function displayEvaluationResults(results) {
-  const resultsContainer = document.getElementById("resultsContainer");
-  const marksTableBody = document
-    .getElementById("marksTable")
-    .getElementsByTagName("tbody")[0];
+  const resultsContainer = document.getElementById('resultsContainer');
+  const marksTableBody = document.getElementById('marksTable').getElementsByTagName('tbody')[0];
+  const passPercentage = parseFloat(document.getElementById('passPercentageInput').value) || 40;
+  
+  resultsContainer.innerHTML = ''; // Clear previous results
+  marksTableBody.innerHTML = ''; // Clear previous marks data
 
-  resultsContainer.innerHTML = ""; // Clear previous results
-  marksTableBody.innerHTML = ""; // Clear previous marks data
+  results.forEach(result => {
+    const percentage = (result.totalScore / result.maxPossibleScore) * 100;
+    const isPassed = percentage >= passPercentage;
+    const status = isPassed ? 'Pass' : 'Fail';
 
-  results.forEach((result) => {
     // Add to detailed results
-    const resultItem = document.createElement("div");
-    resultItem.className = "result-item";
+    const resultItem = document.createElement('div');
+    resultItem.className = 'result-item';
     resultItem.innerHTML = `
-      <h4>Roll No: ${result.rollNo}</h4>
-      <p>Total Score: <span class="score">${result.totalScore}</span></p>
-      <p>Max Possible Score: ${result.maxPossibleScore}</p>
+      <h4>Student ID: ${result.rollNo}</h4>
+      <p>Total Score: <span class="score">${result.totalScore}</span> / ${result.maxPossibleScore}</p>
+      <p>Percentage: <span class="percentage">${percentage.toFixed(2)}%</span></p>
+      <p>Pass Percentage: ${passPercentage}%</p>
+      <p>Status: <span class="status ${isPassed ? 'pass' : 'fail'}">${status}</span></p>
     `;
     resultsContainer.appendChild(resultItem);
 
@@ -95,6 +102,9 @@ function displayEvaluationResults(results) {
     row.insertCell(0).textContent = result.rollNo;
     row.insertCell(1).textContent = result.totalScore;
     row.insertCell(2).textContent = result.maxPossibleScore;
+    const statusCell = row.insertCell(3);
+    statusCell.textContent = status;
+    statusCell.className = `status ${isPassed ? 'pass' : 'fail'}`;
   });
 
   showPopup("Evaluation completed successfully!", false);
