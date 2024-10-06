@@ -10,7 +10,6 @@ app.on("window-all-closed", () => {
 });
 
 app.on("activate", () => {
-    console.log("------------")
   if (BrowserWindow.getAllWindows().length === 0) {
     controller.init.bind(this);
   }
