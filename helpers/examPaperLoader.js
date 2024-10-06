@@ -67,14 +67,6 @@ class ExamPaperLoader {
                   source: {
                     type: "base64",
                     media_type: "image/png",
-                    data: currentAnswerKey.content
-                  }
-                },
-                {
-                  type: "image",
-                  source: {
-                    type: "base64",
-                    media_type: "image/png",
                     data: paperContent
                   }
                 }
@@ -86,12 +78,12 @@ class ExamPaperLoader {
         const result = JSON.parse(response.content[0].text);
         this.mergeEvaluationResults(evaluationResult, result);
 
-        if (result.unansweredQuestions.length === 0) {
+        if (result.unansweredQuestions.length === 0 || currentAnswerKey.isLastChunk) {
           evaluationComplete = true;
         } else {
-          currentAnswerKey = answerKeyLoader.getNextAnswerKey();
+          currentAnswerKey = answerKeyLoader.getNextAnswerKeyChunk();
           if (!currentAnswerKey) {
-            console.log("No more answer keys available. Ending evaluation.");
+            console.log("No more answer key chunks available. Ending evaluation.");
             evaluationComplete = true;
           }
         }
@@ -108,18 +100,18 @@ class ExamPaperLoader {
   }
 
   generatePrompt(answerKey, filename, currentEvaluation) {
-    return `You are an exam evaluator. You have been given an answer key image and a student's exam paper image. Your tasks are:
+    return `You are an exam evaluator. You have been given a chunk of an answer key text and a student's exam paper image. Your tasks are:
 
-1. Carefully examine both images.
+1. Carefully examine the exam paper image and the answer key text chunk.
 2. Extract the roll number from the exam paper if not already provided.
-3. Identify the question numbers and their corresponding answers in the exam paper.
-4. Compare the student's answers to the answer key.
-5. Provide a score for each answered question based on the marks specified in the answer key.
+3. Identify the question numbers and their corresponding answers in the exam paper that match this answer key chunk.
+4. Compare the student's answers to the answer key chunk.
+5. Provide a score for each answered question based on the marks specified in the answer key chunk.
 6. Determine if any answers are partial or incomplete.
-7. Identify any questions that couldn't be answered with this answer key.
+7. Identify any questions in this chunk that couldn't be answered with the current answer key information.
 
-Answer Key Image (Filename: ${answerKey.filename}):
-[Answer Key Image]
+Answer Key Chunk (Filename: ${answerKey.filename}, Is Last Chunk: ${answerKey.isLastChunk}):
+${answerKey.content}
 
 Exam Paper Image (Filename: ${filename}):
 [Exam Paper Image]
@@ -140,7 +132,7 @@ Please provide your evaluation in the following JSON format:
   ],
   "totalScore": sum of all scores,
   "maxPossibleScore": sum of all max scores for attempted questions,
-  "unansweredQuestions": ["list of question numbers that couldn't be answered with this key"]
+  "unansweredQuestions": ["list of question numbers that couldn't be answered with this key chunk"]
 }
 
 Ensure your response is only the JSON object, with no additional explanation.`;
