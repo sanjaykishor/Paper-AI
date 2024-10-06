@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paper Evaluation App</title>
+    <link rel="stylesheet" href="../../styles/home/style.css">
+</head>
+
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <label for="studentIdInput">Student ID</label>
+            <input type="text" id="studentIdInput" placeholder="Enter Student ID">
+            <button id="searchStudentBtn">Search</button>
+
+            <label for="examTypeInput">Exam Type</label>
+            <input type="text" id="examTypeInput" placeholder="Enter Exam Type">
+            <!-- <button id="searchExamBtn">Search</button> -->
+
+            <label for="classInput">Class</label>
+            <input type="text" id="classInput" placeholder="Enter Class">
+            <button id="searchClassExamBtn">Search</button>
+
+            <label for="keyPathInput">Key Path</label>
+            <input type="text" id="keyPathInput" placeholder="Enter Keys Path">
+
+            <label for="paperPathInput">Paper Path</label>
+            <input type="text" id="paperPathInput" placeholder="Enter Answer Paper Path">
+
+            <button id="startBtn">Start</button>
+        </div>
+
+        <div class="content">
+            <!-- <div class="student-info">
+                <div>Student Id: <span id="studentIdValue">---</span></div>
+                <div>Class: <span id="classValue">---</span></div>
+                <div>Year: <span id="yearValue">---</span></div>
+                <div>Exam: <span id="examValue">---</span></div>
+            </div> -->
+
+            <div class="student-info-card">
+                <div>
+                    <span class="student-info-label">Student ID:</span>
+                    <span class="student-info-value" id="studentIdValue"></span>
+                </div>
+                <div>
+                    <span class="student-info-label">Class:</span>
+                    <span class="student-info-value" id="classValue"></span>
+                </div>
+                <div>
+                    <span class="student-info-label">Year:</span>
+                    <span class="student-info-value" id="yearValue"></span>
+                </div>
+                <div>
+                    <span class="student-info-label">Exam:</span>
+                    <span class="student-info-value" id="examValue"></span>
+                </div>
+            </div>
+
+            <div class="evaluation-results">
+                <h3>Evaluation Results</h3>
+                <div id="resultsContainer"></div>
+            </div>
+            <div class="marks-section">
+                <!-- <h3>Marks Data</h3> -->
+                <table id="marksTable">
+                    <thead>
+                        <tr>
+                            <th>Roll No</th>
+                            <th>Total Score</th>
+                            <th>Max Possible Score</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Dynamic rows will be added here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="popup" id="popup"></div>
+
+    <footer>
+        <p>© 2024 Paper Evaluation App. All rights reserved.</p>
+        <p>For support contact: admin@gmail.com</p>
+    </footer>
+
+    <!-- <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> -->
+    <script src="../../viewscripts/home/index.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,23 @@
+{
+  "name": "paper-evaluate-system",
+  "version": "1.0.0",
+  "description": "A system to exam evaluate papers",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "electron ."
+  },
+  "author": "Paper AI.inc",
+  "license": "ISC",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.27.3",
+    "machina": "^4.0.2",
+    "mammoth": "^1.8.0",
+    "pdf-parse": "^1.1.1"
+  },
+  "devDependencies": {
+    "electron": "^32.1.2",
+    "electron-installer-debian": "^3.2.0",
+    "electron-packager": "^17.1.2"
+  }
+}
