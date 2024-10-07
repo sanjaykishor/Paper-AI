@@ -1,5 +1,6 @@
 const { ipcMain, BrowserWindow } = require("electron");
 const path = require("path");
+const https = require('https');
 const AppFSM = require("../helpers/appFSM");
 const answerKeyLoader = require("../helpers/answerKeyLoader");
 const examPaperLoader = require("../helpers/examPaperLoader");
@@ -71,6 +72,9 @@ class Controller {
         case "displayResults":
           this.displayResults();
           break;
+        case "updateDatabase":
+          await this.updateDatabase();
+          break;
         default:
           break;
       }
@@ -94,6 +98,87 @@ class Controller {
     });
     // Send the results to the renderer process to display in the UI
     this.window.webContents.send("evaluation-results", results);
+    
+    // Transition to update database state
+    this.appFSM.handle("complete");
+  };
+
+  updateDatabase = async () => {
+    const results = examPaperLoader.getEvaluationResults();
+    console.log("Updating database with evaluation results", results);
+
+    const url = "https://paper-ai-backend.onrender.com/api/evaluation-results";
+
+    for (let result of results) {
+      try {
+        // Retrieve the original exam paper contents using the new method
+        const paperContents = examPaperLoader.getExamPaperContents(result.rollNo);
+
+        // Prepare the data for each result
+        const dataToSend = {
+          _id: result.rollNo, // Using rollNo as _id
+          rollNo: result.rollNo,
+          class: result.class || "Not Specified",
+          section: result.section || "Not Specified",
+          subject: result.subject,
+          totalScore: result.totalScore,
+          maxPossibleScore: result.maxPossibleScore,
+          // scores: result.scores,
+          // marksheets: paperContents.map(pc => ({
+          //   filename: pc.filename,
+          //   content: pc.content
+          // }))
+        };
+
+        const data = JSON.stringify(dataToSend);
+        console.log("Sending data to database for roll no:", dataToSend);
+
+        const options = {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Content-Length': data.length
+          }
+        };
+
+        await new Promise((resolve, reject) => {
+          const req = https.request(url, options, (res) => {
+            let responseBody = '';
+
+            res.on('data', (chunk) => {
+              responseBody += chunk;
+            });
+
+            res.on('end', () => {
+              if (res.statusCode >= 200 && res.statusCode < 300) {
+                console.log("Database update successful for roll no:", result.rollNo);
+                this.window.webContents.send("database-update-success", { rollNo: result.rollNo });
+                resolve();
+              } else {
+                console.error("Error updating database for roll no:", result.rollNo, res.statusCode, responseBody);
+                this.window.webContents.send("database-update-error", `HTTP error! status: ${res.statusCode} for roll no: ${result.rollNo}`);
+                reject(new Error(`HTTP error! status: ${res.statusCode}`));
+              }
+            });
+          });
+
+          req.on('error', (error) => {
+            console.error("Error updating database for roll no:", result.rollNo, error);
+            this.window.webContents.send("database-update-error", `${error.message} for roll no: ${result.rollNo}`);
+            reject(error);
+          });
+
+          req.write(data);
+          req.end();
+        });
+      } catch (error) {
+        console.error("Error processing result for roll no:", result.rollNo, error);
+        this.window.webContents.send("database-update-error", `Error processing result for roll no: ${result.rollNo}`);
+      }
+    }
+
+    console.log("All results processed");
+    this.appFSM.transition("success");
   };
 }
 

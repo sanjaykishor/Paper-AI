@@ -25,6 +25,14 @@ class AppFSM extends machina.Fsm {
           _onEnter: function () {
             console.log("Displaying evaluation results");
           },
+          complete: function () {
+            this.transition("updateDatabase");
+          },
+        },
+        updateDatabase: {
+          _onEnter: function () {
+            console.log("Updating database with evaluation results");
+          },
         },
         failure: {
           _onEnter: function () {

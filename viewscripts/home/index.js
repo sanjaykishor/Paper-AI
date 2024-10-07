@@ -68,6 +68,12 @@ window.electronAPI.receive((data) => {
     case "evaluation-results":
       displayEvaluationResults(data.data);
       break;
+    case "database-update-success":
+      showPopup("Evaluation results successfully saved to database!", false);
+      break;
+    case "database-update-error":
+      showPopup("Error saving results to database: " + data.data, true);
+      break;
   }
 });
 
