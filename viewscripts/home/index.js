@@ -90,6 +90,9 @@ function displayEvaluationResults(results) {
     resultItem.className = 'result-item';
     resultItem.innerHTML = `
       <h4>Student ID: ${result.rollNo}</h4>
+      <p>Class: ${result.class}</p>
+      <p>Section: ${result.section}</p>
+      <p>Subject: ${result.subject}</p>
       <p>Total Score: <span class="score">${result.totalScore}</span> / ${result.maxPossibleScore}</p>
       <p>Percentage: <span class="percentage">${percentage.toFixed(2)}%</span></p>
       <p>Pass Percentage: ${passPercentage}%</p>
@@ -100,9 +103,13 @@ function displayEvaluationResults(results) {
     // Add to marks table
     const row = marksTableBody.insertRow();
     row.insertCell(0).textContent = result.rollNo;
-    row.insertCell(1).textContent = result.totalScore;
-    row.insertCell(2).textContent = result.maxPossibleScore;
-    const statusCell = row.insertCell(3);
+    row.insertCell(1).textContent = result.class;
+    row.insertCell(2).textContent = result.section;
+    row.insertCell(3).textContent = result.subject;
+    row.insertCell(4).textContent = result.totalScore;
+    row.insertCell(5).textContent = result.maxPossibleScore;
+    row.insertCell(6).textContent = `${percentage.toFixed(2)}%`;
+    const statusCell = row.insertCell(7);
     statusCell.textContent = status;
     statusCell.className = `status ${isPassed ? 'pass' : 'fail'}`;
   });

@@ -89,7 +89,7 @@ class Controller {
     console.log("Evaluation Results:");
     results.forEach((result) => {
       console.log(
-        `Roll No: ${result.rollNo}, Total Score: ${result.totalScore}/${result.maxPossibleScore}`
+        `Roll No: ${result.rollNo}, Class: ${result.class}, Section: ${result.section}, Subject: ${result.subject}, Total Score: ${result.totalScore}/${result.maxPossibleScore}`
       );
     });
     // Send the results to the renderer process to display in the UI

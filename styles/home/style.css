@@ -290,6 +290,64 @@ body {
     z-index: 1;
 }
 
+.marks-section {
+    flex: 1;
+    background-color: #ffffff;
+    border-radius: 8px;
+    padding: 15px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.table-container {
+    flex: 1;
+    overflow-y: auto;
+    margin-top: 15px;
+}
+
+#marksTable {
+    width: 100%;
+    border-collapse: collapse;
+    white-space: nowrap;
+}
+
+#marksTable th, #marksTable td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+#marksTable th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+    color: #333;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+#marksTable tr:hover {
+    background-color: #f5f5f5;
+}
+
+#marksTable .status {
+    font-weight: bold;
+    padding: 3px 8px;
+    border-radius: 3px;
+}
+
+#marksTable .status.pass {
+    background-color: #4CAF50;
+    color: white;
+}
+
+#marksTable .status.fail {
+    background-color: #f44336;
+    color: white;
+}
+
 footer {
     text-align: center;
     padding: 10px;

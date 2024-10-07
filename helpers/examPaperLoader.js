@@ -45,6 +45,9 @@ class ExamPaperLoader {
       let currentAnswerKey = answerKeyLoader.getCurrentAnswerKey();
       let evaluationResult = {
         rollNo: "",
+        class: "",
+        section: "",
+        subject: "",
         scores: [],
         totalScore: 0,
         maxPossibleScore: 0,
@@ -103,7 +106,7 @@ class ExamPaperLoader {
     return `You are an exam evaluator. You have been given a chunk of an answer key text and a student's exam paper image. Your tasks are:
 
 1. Carefully examine the exam paper image and the answer key text chunk.
-2. Extract the roll number from the exam paper if not already provided.
+2. Extract the roll number, class, section, and subject from the exam paper if not already provided.
 3. Identify the question numbers and their corresponding answers in the exam paper that match this answer key chunk.
 4. Compare the student's answers to the answer key chunk.
 5. Provide a score for each answered question based on the marks specified in the answer key chunk.
@@ -122,6 +125,9 @@ ${JSON.stringify(currentEvaluation, null, 2)}
 Please provide your evaluation in the following JSON format:
 {
   "rollNo": "extracted roll number (if not already provided)",
+  "class": "extracted class (if not already provided)",
+  "section": "extracted section (if not already provided)",
+  "subject": "extracted subject (if not already provided)",
   "scores": [
     {
       "questionNumber": "question number",
@@ -141,6 +147,15 @@ Ensure your response is only the JSON object, with no additional explanation.`;
   mergeEvaluationResults(currentEvaluation, newEvaluation) {
     if (!currentEvaluation.rollNo && newEvaluation.rollNo) {
       currentEvaluation.rollNo = newEvaluation.rollNo;
+    }
+    if (!currentEvaluation.class && newEvaluation.class) {
+      currentEvaluation.class = newEvaluation.class;
+    }
+    if (!currentEvaluation.section && newEvaluation.section) {
+      currentEvaluation.section = newEvaluation.section;
+    }
+    if (!currentEvaluation.subject && newEvaluation.subject) {
+      currentEvaluation.subject = newEvaluation.subject;
     }
 
     newEvaluation.scores.forEach(newScore => {
